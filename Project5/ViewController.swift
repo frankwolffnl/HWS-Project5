@@ -14,6 +14,7 @@ class ViewController: UITableViewController {
 	var usedWords = [String]()
 	
 	override func viewDidLoad() {
+		navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(promptForAnswer))
 		super.viewDidLoad()
 		
 		if let startWordsPath = Bundle.main.path(forResource: "start", ofType: "txt") {
@@ -26,11 +27,51 @@ class ViewController: UITableViewController {
 		startGame()
 	}
 	
+	@objc func promptForAnswer() {
+		let ac = UIAlertController(title: "Enter answer", message: nil, preferredStyle: .alert)
+		ac.addTextField()
+		
+		let submitAction = UIAlertAction(title: "Submit", style: .default) { [unowned self, ac] (action: UIAlertAction) in
+			let answer = ac.textFields![0]
+			self.submit(answer: answer.text!)
+		}
+		
+		ac.addAction(submitAction)
+		present(ac, animated: true)
+	}
+	
+	func submit(answer: String) {
+		let lowerAnswer = answer.lowercased()
+		
+		if isPossible(word: lowerAnswer) {
+			if isOriginal(word: lowerAnswer) {
+				if isReal(word: lowerAnswer) {
+					usedWords.insert(answer, at: 0)
+					
+					let indexPath = IndexPath(row: 0, section: 0)
+					tableView.insertRows(at: [indexPath], with: .automatic)
+				}
+			}
+		}
+	}
+	
 	func startGame() {
 		allWords = GKRandomSource.sharedRandom().arrayByShufflingObjects(in: allWords) as! [String]
 		title = allWords[0]
 		usedWords.removeAll(keepingCapacity: true)
 		tableView.reloadData()
+	}
+	
+	func isPossible(word: String) -> Bool {
+		return true
+	}
+	
+	func isOriginal(word: String) -> Bool {
+		return true
+	}
+	
+	func isReal(word: String) -> Bool {
+		return true
 	}
 	
 	override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
