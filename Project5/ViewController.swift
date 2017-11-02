@@ -43,9 +43,6 @@ class ViewController: UITableViewController {
 	func submit(answer: String) {
 		let lowerAnswer = answer.lowercased()
 		
-		let errorTitle: String
-		let errorMessage: String
-		
 		if isPossible(word: lowerAnswer) {
 			if isOriginal(word: lowerAnswer) {
 				if isReal(word: lowerAnswer) {
@@ -56,16 +53,33 @@ class ViewController: UITableViewController {
 					
 					return
 				} else {
-					errorTitle = "Word not recognised"
-					errorMessage = "You can't just make them up, you know!"
+					showErrorMessage(type: "real")
 				}
 			} else {
-				errorTitle = "Word used already"
-				errorMessage = "Be more original!"
+				showErrorMessage(type: "original")
 			}
 		} else {
+			showErrorMessage(type: "possible")
+		}
+	}
+	
+	func showErrorMessage(type: String) {
+		let errorTitle: String
+		let errorMessage: String
+		
+		switch type {
+		case "possible":
 			errorTitle = "Word not possible"
 			errorMessage = "You can't spell that word from '\(title!.lowercased())'!"
+		case "original":
+			errorTitle = "Word used already"
+			errorMessage = "Be more orignal!"
+		case "real":
+			errorTitle = "Word not recognised"
+			errorMessage = "You can't just make them up, you know!"
+		default:
+			errorTitle = ""
+			errorMessage = ""
 		}
 		let ac = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
 		ac.addAction(UIAlertAction(title: "OK", style: .default))
@@ -94,13 +108,17 @@ class ViewController: UITableViewController {
 	}
 	
 	func isOriginal(word: String) -> Bool {
-		return !usedWords.contains(word)
+		return !usedWords.contains(word) && (word != title!)
 	}
 	
 	func isReal(word: String) -> Bool {
 		let checker = UITextChecker()
 		let range = NSMakeRange(0, word.utf16.count)
 		let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
+		
+		if word == "" {
+			return false
+		}
 		
 		return misspelledRange.location == NSNotFound
 	}
